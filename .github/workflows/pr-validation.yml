@@ -10,20 +10,58 @@ on:
     paths-ignore:
       - '**.md'
 
+    runs-on: arc-runner-set
+    steps:
+      - name: Use curl
+        uses: kordlib/setup-curl@v1.0.0 
 
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        
+      - name: Install .NET 8.0
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Cache NuGet Packages
+        id: nuget-packages
+        uses: actions/cache@v3
+        env:
+          cache-name: nuget-package-cache
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ env.cache-name }}
+
+      - name: List NuGet Packages
+        if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
+        continue-on-error: true
+        run: ls -lh ~/.nuget/packages
+        
 jobs:  
   test:
     runs-on: arc-runner-set
-
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET (global.json)
+      - name: Use curl
+        uses: kordlib/setup-curl@v1.0.0 
+
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        
+      - name: Install .NET 8.0
         uses: actions/setup-dotnet@v3
-      - name: Update Workloads
-        run: dotnet workload update
-      - name: Install Workloads
-        run: dotnet workload install aspire
-      - name: Build 
-        run: dotnet build eShop.Web.slnf
-      - name: Test
-        run: dotnet test eShop.Web.slnf
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Cache NuGet Packages
+        id: nuget-packages
+        uses: actions/cache@v3
+        env:
+          cache-name: nuget-package-cache
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ env.cache-name }}
+
+      - name: List NuGet Packages
+        if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
+        continue-on-error: true
+        run: ls -lh ~/.nuget/packages
