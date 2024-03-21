@@ -1,0 +1,34 @@
+name: testfiles
+
+on:
+  push:
+    branches: 
+      - main
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build:
+    runs-on: arc-runner-set
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        
+      - name: Install .NET 8.0
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Cache NuGet Packages
+        id: nuget-packages
+        uses: actions/cache@v3
+        env:
+          cache-name: nuget-package-cache
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ env.cache-name }}
+
+      - name: List NuGet Packages
+        if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
+        continue-on-error: true
+        run: ls -lh ~/.nuget/packages
